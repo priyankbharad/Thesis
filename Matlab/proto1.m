@@ -54,8 +54,8 @@ function proto1_OpeningFcn(hObject, eventdata, handles, varargin)
 % handles    structure with handles and user data (see GUIDATA)
 % varargin   command line arguments to proto1 (see VARARGIN)
 count=0;
-javaaddpath c:\users\priyank\documents\arduinoIO\RUarduinoComm.jar;
 
+javaaddpath c:\users\priyank\documents\Github\Thesis\Matlab\RUarduinoComm.jar
 o=com.rapplogic.CACMatlab.RU_ZNarduinoComm({'COM4' '9600'});
 handles.xbeeObject=o;
 handles.cnt=count;
@@ -302,17 +302,35 @@ while(flag==true)
                      
                 else
                      a=monitorMap(strcat(num2str(handles.nodes(6,j)),'_',num2str(handles.nodes(7,j)),'_',num2str(handles.nodes(8,j))));
-                     b=num2cell(char(s(i,1)));
-                     b=reshape(b,8,[]);
-                     d=cell2num(b);
-                     d=d-48
+                     if ~grideyeFlag
+                        set(a(1),'String',char(s(i,1)));
+                    else
+                    b=str2num(char(s(i,1)));
+                    b=reshape(b,8,[]);
+                    d=transpose(b)
                      %imshow(d,'InitialMagnification','fit');
                      %drawnow
                      out=bwconncomp(d);
+                     contents2 = get(handles.popupmenu2,'String')
+                     popupmenu2value = contents2{get(handles.popupmenu2,'Value')}
+                       if strcmp(popupmenu2value,'Security')
+                            if out.NumObjects>0
+                                Y=audioread('alarm.wav');
+                                sound(Y,44100);
+                                pause(1);
+                            else
+                                %do nothing
+                            end
+                        
+                           
+                               
+                        %    grideyeFlag=false;
+                        end 
                      disp(out.NumObjects);
 
 
                      set(a(1),'String',out.NumObjects);
+                    end
                 end
                 
               
