@@ -182,8 +182,8 @@ s(1,2)
             %   set(gcf,'WindowButtonUpFcn',{@PanelCallbackUp,cnt});
    
    a=get(tmp(1),'Position')
-   height=35;
-   width=45;
+   height=50;
+   
    set(tmp(1),'Position',[a(1)+(a(3)/2)-(height/2) a(2)+(a(4)/2)-(width/2) height width]);  
            x=char(s(1,2));
             x=(x(1:end-1))
@@ -269,11 +269,8 @@ for i=1:size(handles.nodes,2)
     set(tmp(4),'Visible','off');
     
 end
-
 contents = get(handles.popupmenu1,'String');
 popupmenu1value = contents{get(handles.popupmenu1,'Value')};
-set(handles.popupmenu1,'Enable','off')
-set(handles.popupmenu2,'Enable','off')
 if strcmp(popupmenu1value,'0')
     grideyeFlag=true;
 else
@@ -295,18 +292,18 @@ while(flag==true)
     
  
     for i=1:size(s,1)
-        x=[0 0 0 0 0];
+        x=[0 0 1 0 1];
         
     an=handles.HashMap(char(s(i,2)));
         for j=1:size(handles.nodes,2)
             % (char(strcat(handles.nodes(6,j),'_',handles.nodes(7,j),'_',handles.nodes(8,j))))==char(an)
             if(strcmp(strcat(num2str(handles.nodes(6,j)),'_',num2str(handles.nodes(7,j)),'_',num2str(handles.nodes(8,j))),an))
                 if(initFlag)
-                      pbh1 = uicontrol(handles.nodes(1,j),'Style','text',...
+                      pbh1 = uicontrol(handles.nodes(1,j),'Style','text','String',char(s(i,1)),...
                       'Units','normalized',...
-                      'Position',[.1 .2 .8 .75],'ForegroundColor',[1 1 1],'BackgroundColor',[1 0 0],'FontSize',15);
+                      'Position',[.05 .50 .9 .5],'ForegroundColor',[1 1 1],'BackgroundColor',[1 0 0],'FontSize',20);
                       monitorMap(strcat(num2str(handles.nodes(6,j)),'_',num2str(handles.nodes(7,j)),'_',num2str(handles.nodes(8,j))))=[pbh1 x];
-                    %  disp('here')
+                      disp('here')
                      
                 else
                      a=monitorMap(strcat(num2str(handles.nodes(6,j)),'_',num2str(handles.nodes(7,j)),'_',num2str(handles.nodes(8,j))));
@@ -317,16 +314,16 @@ while(flag==true)
                     b=str2num(char(s(i,1)));
                     b=reshape(b,8,[]);
                     d=transpose(b)
-                    
+                    ab=size(a)
                     %z=a
                      %imshow(d,'InitialMagnification','fit');
                      %drawnow
                      out=bwconncomp(d);
-                     z=a(2:6);
-                      z=[z out.NumObjects];
-                      a(2:6)=z(2:6);
+                     z=a(2:6)
+                      z=[z out.NumObjects]
+                      a(2:6)=z(2:6)
                       z=a(2:6)
-                     contents2 = get(handles.popupmenu2,'String');
+                     contents2 = get(handles.popupmenu2,'String')
                      popupmenu2value = contents2{get(handles.popupmenu2,'Value')}
                        if strcmp(popupmenu2value,'Security')
                            set(a(1),'String',out.NumObjects);
@@ -369,8 +366,6 @@ while(flag==true)
        handles.xbeeObject.sendData({'NodeDiscover'});
        disp('Stop')
        set(handles.stopMon,'Visible','off');
-       set(handles.popupmenu1,'Enable','on')
-        set(handles.popupmenu2,'Enable','on')
    end
     pause(0.1);
 end

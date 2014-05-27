@@ -228,7 +228,8 @@ void loop() {
          case 30:
          {
            int addr=1;
-           writeEEPROM();text[0]=1;break;
+           //writeEEPROM();
+           text[0]=1;break;
           // EEPROM.write(addr++,rx.getData(1));
            //EEPROM.write(addr++,rx.getData(2));
            //EEPROM.write(addr++,rx.getData(3));break;
