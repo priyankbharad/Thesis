@@ -270,8 +270,9 @@ for i=1:size(handles.nodes,2)
     
 end
 
-contents = get(handles.popupmenu1,'String');
-popupmenu1value = contents{get(handles.popupmenu1,'Value')};
+%contents = get(handles.popupmenu1,'String');
+popupmenu1value=get(handles.popupmenu1,'Value')-1
+%popupmenu1value = contents{get(handles.popupmenu1,'Value')}
 set(handles.popupmenu1,'Enable','off')
 set(handles.popupmenu2,'Enable','off')
 if strcmp(popupmenu1value,'0')

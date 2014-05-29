@@ -24,7 +24,7 @@
 
 #include <XBee.h>
 #include <EEPROM.h>
-
+const int analogInPin[] = {A0,A1,A2,A3,A4,A5,A6,A7};
 /*
 This example is for Series 2 XBee
 Receives a ZB RX packet and sets a PWM value based on packet data.
@@ -132,7 +132,7 @@ void Monitor_event(int x)
              temperature = -(2048 - temperature);
            }
           celsius = temperature * 0.25;
-          if(celsius>26)
+          if(celsius>30)
           {
             text[pixel]=1;
           }
@@ -145,11 +145,19 @@ void Monitor_event(int x)
       }
       zbTx = ZBTxRequest(remoteAddress, text, sizeof(text));
       }
-      else{
-      uint8_t text[] = {'0'};
-      pinMode(5,INPUT);  
-      text[0]=digitalRead(x);
-      zbTx = ZBTxRequest(remoteAddress, text, sizeof(text));
+      else if(x<14)
+      {
+        uint8_t text[] = {'0'};
+        pinMode(x,INPUT);  
+        text[0]=digitalRead(x);
+        zbTx = ZBTxRequest(remoteAddress, text, sizeof(text));
+      }
+      else
+      {
+        uint8_t text[] = {'0'};
+        pinMode(analogInPin[x-14],INPUT);  
+        text[0]=analogRead(analogInPin[x-14]);
+        zbTx = ZBTxRequest(remoteAddress, text, sizeof(text));
       }
        
        Serial.println(sizeof(text));
