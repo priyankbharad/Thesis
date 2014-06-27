@@ -1,35 +1,10 @@
 #include <Wire.h>
 
 
-
-/**
- * Copyright (c) 2009 Andrew Rapp. All rights reserved.
- *
- * This file is part of XBee-Arduino.
- *
- * XBee-Arduino is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * XBee-Arduino is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with XBee-Arduino.  If not, see <http://www.gnu.org/licenses/>.
- *
- */
-
 #include <XBee.h>
 #include <EEPROM.h>
 const int analogInPin[] = {A0,A1,A2,A3,A4,A5,A6,A7};
-/*
-This example is for Series 2 XBee
-Receives a ZB RX packet and sets a PWM value based on packet data.
-Error led is flashed if an unexpected packet is received
-*/
+
 boolean isRouter=false;
 uint8_t text[] = {'0'};
 uint8_t shCmd[] = {'N','I'};
@@ -40,18 +15,8 @@ ZBRxResponse rx = ZBRxResponse();
 AtCommandRequest atRequest = AtCommandRequest(shCmd);
 AtCommandResponse atResponse = AtCommandResponse();
 XBeeAddress64 remoteAddress = XBeeAddress64(0x00000000, 0x00000000);
-//void flashLed(int pin, int times, int wait) {
-//    
-//    for (int i = 0; i < times; i++) {
-//      digitalWrite(pin, HIGH);
-//      delay(wait);
-//      digitalWrite(pin, LOW);
-//      
-//      if (i + 1 < times) {
-//        delay(wait);
-//      }
-//    }
-//}
+
+
 void writeEEPROM()
 {
     int addr=1;
@@ -132,7 +97,7 @@ void Monitor_event(int x)
              temperature = -(2048 - temperature);
            }
           celsius = temperature * 0.25;
-          if(celsius>30)
+          if(celsius-celsiusTherm>1.4)
           {
             text[pixel]=1;
           }
@@ -156,7 +121,8 @@ void Monitor_event(int x)
       {
         uint8_t text[] = {'0'};
         pinMode(analogInPin[x-14],INPUT);  
-        text[0]=analogRead(analogInPin[x-14]);
+        int tmp=analogRead(analogInPin[x-14]);
+        text[0]=tmp/4;
         zbTx = ZBTxRequest(remoteAddress, text, sizeof(text));
       }
        
@@ -165,7 +131,7 @@ void Monitor_event(int x)
        xbee.send(zbTx);
       // delay(50);            
        xbee.readPacket();
-      delay(50);            
+      delay(10);            
       if (xbee.getResponse().isAvailable()) 
       {
         digitalWrite(13,1);

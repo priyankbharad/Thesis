@@ -275,10 +275,10 @@ popupmenu1value=get(handles.popupmenu1,'Value')-1
 %popupmenu1value = contents{get(handles.popupmenu1,'Value')}
 set(handles.popupmenu1,'Enable','off')
 set(handles.popupmenu2,'Enable','off')
-if strcmp(popupmenu1value,'0')
-    grideyeFlag=true;
+if popupmenu1value==0
+    grideyeFlag=1;
 else
-    grideyeFlag=false;
+    grideyeFlag=0;
 end 
 
 %pinNumber=get(handles.pi,'String')
@@ -287,9 +287,9 @@ s=handles.xbeeObject.sendData({'Monitor',num2str(popupmenu1value)});
 pause(1);
 flag=true;initFlag=true;
  monitorMap = containers.Map();
-   
+    fileID = fopen('output.txt','w');
 while(flag==true)
-   
+  
   
 
     s=handles.xbeeObject.getReply({num2str(size(handles.nodes,2))});
@@ -319,10 +319,15 @@ while(flag==true)
                     b=reshape(b,8,[]);
                     d=transpose(b)
                     
+                    
+                    fprintf(fileID,'%s\n',an);
+                    fprintf(fileID,'%d   %d   %d   %d   %d   %d   %d   %d\n',d);
+                    fprintf(fileID,'\n-------------------------------------\n');
+                    
                     %z=a
                      %imshow(d,'InitialMagnification','fit');
                      %drawnow
-                     out=bwconncomp(d);
+                     out=bwconncomp(d)
                      z=a(2:6);
                       z=[z out.NumObjects];
                       a(2:6)=z(2:6);
@@ -372,8 +377,9 @@ while(flag==true)
        set(handles.stopMon,'Visible','off');
        set(handles.popupmenu1,'Enable','on')
         set(handles.popupmenu2,'Enable','on')
+        fclose(fileID);
    end
-    pause(0.1);
+    pause(0.07);
 end
 guidata(hObject, handles);
 %ans=handles.HashMap(char(s(2)));
