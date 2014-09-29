@@ -56,7 +56,7 @@ function proto1_OpeningFcn(hObject, eventdata, handles, varargin)
 count=0;
 
 javaaddpath c:\users\priyank\documents\Github\Thesis\Matlab\RUarduinoComm.jar
-o=com.rapplogic.CACMatlab.RU_ZNarduinoComm({'COM4' '9600'});
+o=com.rapplogic.CACMatlab.RU_ZNarduinoComm({'COM6' '9600'});
 handles.xbeeObject=o;
 handles.cnt=count;
 set(hObject, 'DeleteFcn', @exitWindow)
@@ -164,11 +164,12 @@ function connect_callback ( hObject , eventData ,cnt)
    s=handles.xbeeObject.sendData({'NodeDiscover'});
    
 s(1,2)
-
+   
 
    if(cnt==0)
        newMap = containers.Map();
        if(str2double(char(s(1,1)))==1)
+           
            set(handles.iButton,'Visible','on');
            set(tmp(5),'Visible','off');
            set(tmp(2),'Visible','off');
@@ -180,19 +181,20 @@ s(1,2)
              set(handles.text1,'Visible','on');
             % set(tmp(1),'ButtonDownFcn',{@PanelCallbackDown,cnt});
             %   set(gcf,'WindowButtonUpFcn',{@PanelCallbackUp,cnt});
+        a=get(tmp(1),'Position')
+         height=35;
+          width=45;
+            set(tmp(1),'Position',[a(1)+(a(3)/2)-(height/2) a(2)+(a(4)/2)-(width/2) height width]);  
    
-   a=get(tmp(1),'Position')
-   height=35;
-   width=45;
-   set(tmp(1),'Position',[a(1)+(a(3)/2)-(height/2) a(2)+(a(4)/2)-(width/2) height width]);  
            x=char(s(1,2));
             x=(x(1:end-1))
             tempOut=handles.xbeeObject.sendData({'AssignIdentifier',char(x),num2str(zone),num2str(subzone),num2str(sensor)})
             newMap(char(s(1,2)))=strcat(num2str(zone),'_',num2str(subzone),'_',num2str(sensor));
+            handles.HashMap=newMap;
        end
    else
        newMap=handles.HashMap;
-       
+       newMap
        for j=1:size(s,1)
            if(isKey(newMap,char(s(j,2)))~=1)
                 if(str2double(char(s(j,1)))==1)
@@ -201,11 +203,15 @@ s(1,2)
                     set(tmp(2),'Visible','off');
                     set(tmp(3),'Visible','off');
                     set(tmp(4),'Visible','off');
-                    
+                     a=get(tmp(1),'Position')
+                    height=35;
+                     width=45;
+                    set(tmp(1),'Position',[a(1)+(a(3)/2)-(height/2) a(2)+(a(4)/2)-(width/2) height width]);  
                     x=char(s(j,2));
-                    x=(x(1:end-1));
-                    handles.xbeeObject.sendData({'AssignIdentifier',char(x),num2str(zone),num2str(subzone),num2str(sensor)});
+                    x=(x(1:end-1))
+                    s=handles.xbeeObject.sendData({'AssignIdentifier',char(x),num2str(zone),num2str(subzone),num2str(sensor)})
                     newMap(char(s(1,2)))=strcat(num2str(zone),'_',num2str(subzone),'_',num2str(sensor));
+                    handles.HashMap=newMap;
                 end
                 break;
            end
@@ -217,8 +223,8 @@ s(1,2)
 
    
    % isKey(newMap,char(s(1,2)))
-    handles.HashMap=newMap;
-  
+    
+  keys(newMap)
   guidata(hObject, handles);
 
 % --- Executes on button press in pushbutton2.
@@ -280,14 +286,31 @@ if popupmenu1value==0
 else
     grideyeFlag=0;
 end 
-
+contents2 = get(handles.popupmenu2,'String');
+popupmenu2value = contents2{get(handles.popupmenu2,'Value')}
 %pinNumber=get(handles.pi,'String')
 %l=num2str(pinNumber)
-s=handles.xbeeObject.sendData({'Monitor',num2str(popupmenu1value)});
+s=handles.xbeeObject.sendData({'Monitor',num2str(popupmenu1value),num2str(get(handles.popupmenu2,'Value'))})
 pause(1);
 flag=true;initFlag=true;
  monitorMap = containers.Map();
     fileID = fopen('output.txt','w');
+    fileID1 = fopen('result.csv','w');
+%graphVar[size(s,1)];
+graphX=cell(1,size(s,1));
+graphY=zeros(1,size(s,1));
+
+for i=1:size(s,1)
+    graphX(i)=cellstr(handles.HashMap(char(s(i,2))))
+    graphY(i)=1
+end
+%graphVar
+newFig=figure()
+set(newFig,'name','Monitoring..','numbertitle','off')
+barG=bar(graphY,0.4)
+set(gca,'xticklabel',graphX)
+%linkdata on
+
 while(flag==true)
   
   
@@ -296,9 +319,11 @@ while(flag==true)
     
  
     for i=1:size(s,1)
-        x=[0 0 0 0 0];
-        
+        x=[0 0 0 0 0 0 0];
+        %tmpMax=[0 0 0 0 0];
+        %tmpZeroFlag=[0 0 0 0 0]
     an=handles.HashMap(char(s(i,2)));
+    dataUpdate= find(strcmp(graphX,an)==1)
         for j=1:size(handles.nodes,2)
             % (char(strcat(handles.nodes(6,j),'_',handles.nodes(7,j),'_',handles.nodes(8,j))))==char(an)
             if(strcmp(strcat(num2str(handles.nodes(6,j)),'_',num2str(handles.nodes(7,j)),'_',num2str(handles.nodes(8,j))),an))
@@ -310,12 +335,52 @@ while(flag==true)
                     %  disp('here')
                      
                 else
-                     a=monitorMap(strcat(num2str(handles.nodes(6,j)),'_',num2str(handles.nodes(7,j)),'_',num2str(handles.nodes(8,j))));
+                    keys(monitorMap)
+                    a=monitorMap(strcat(num2str(handles.nodes(6,j)),'_',num2str(handles.nodes(7,j)),'_',num2str(handles.nodes(8,j))));
                      if ~grideyeFlag
                         set(a(1),'String',char(s(i,1)));
+                        
                      else
-                       
+                
                     b=str2num(char(s(i,1)));
+                    if strcmp(popupmenu2value,'Counting')
+                        b
+                        [val,pos]=max(b);
+                        maxPos=find(b==val)
+                        if size(maxPos,2)>1
+                            pos=median(maxPos)
+                        end
+                        if ~all(~b)
+                            
+                            a(2+a(8))=pos;
+                        else
+                           
+                            a(2+a(8))=0;
+                        end
+                        
+                        a(8)=a(8)+1;
+                        a
+                        if a(8)==5
+                            a(8)=0;
+                            arrTemp=a(2:6);
+                            zeroPos=find(arrTemp==0,1);
+                            if isempty(zeroPos)
+                                zeroPos=6;
+                            end
+                            if zeroPos<=2 || arrTemp(1)==arrTemp(zeroPos-1)
+                                disp('No result');
+                            else        
+                            if arrTemp(1)<arrTemp(zeroPos-1)
+                                a(7)=a(7)+1;
+                            else
+                                a(7)=a(7)-1;
+                            end
+                               fprintf(fileID1,'%s,%s,%d\n',an,datestr(clock),a(7)); 
+                            end
+                        end
+                    set(a(1),'String',(a(7)));
+                    else
+                    
                     b=reshape(b,8,[]);
                     d=transpose(b)
                     
@@ -328,12 +393,13 @@ while(flag==true)
                      %imshow(d,'InitialMagnification','fit');
                      %drawnow
                      out=bwconncomp(d)
-                     z=a(2:6);
-                      z=[z out.NumObjects];
-                      a(2:6)=z(2:6);
-                      z=a(2:6)
-                     contents2 = get(handles.popupmenu2,'String');
-                     popupmenu2value = contents2{get(handles.popupmenu2,'Value')}
+                     occOfOne=size(find((cellfun(@numel,out.PixelIdxList))==1));
+                     Occu=out.NumObjects-occOfOne(2);
+                     z=a(2:8);
+                      z=[z Occu];
+                      a(2:8)=z(2:8);
+                      z=a(2:8)
+                     
                        if strcmp(popupmenu2value,'Security')
                            set(a(1),'String',out.NumObjects);
                             if out.NumObjects>0
@@ -344,16 +410,27 @@ while(flag==true)
                                 %do nothing
                             end
                        else if strcmp(popupmenu2value,'Occupancy')
+                             lastVal=get(a(1),'String')  
                              set(a(1),'String',num2str(round(mean(z))));
+                             graphY(dataUpdate)=round(mean(z));
+                             graphY
+                             set(barG,'YData',graphY)
+                             %refreshdata(barG)
+                             drawnow
+                             if str2num(lastVal)~=round(mean(z))
+                                fprintf(fileID1,'%s,%s,,%d\n',an,datestr(clock),round(mean(z))); 
+                                
+                             end
                            end
                            
                                
                         %    grideyeFlag=false;
                         end 
                      disp(out.NumObjects);
+                    end
                      monitorMap(strcat(num2str(handles.nodes(6,j)),'_',num2str(handles.nodes(7,j)),'_',num2str(handles.nodes(8,j))))=a;
 
-                     
+                    
                     end
                 end
                 
@@ -377,9 +454,12 @@ while(flag==true)
        set(handles.stopMon,'Visible','off');
        set(handles.popupmenu1,'Enable','on')
         set(handles.popupmenu2,'Enable','on')
+        close(newFig);
         fclose(fileID);
+        fclose(fileID1);
+        
    end
-    pause(0.07);
+    pause(0.05);
 end
 guidata(hObject, handles);
 %ans=handles.HashMap(char(s(2)));

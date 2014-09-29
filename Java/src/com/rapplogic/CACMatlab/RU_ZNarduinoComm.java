@@ -190,8 +190,9 @@ public class RU_ZNarduinoComm {
 		
 		else if(s[0].compareToIgnoreCase("Monitor")==0)
 		{
-			data=new int[2];
+			data=new int[3];
 			data[0]=40;
+			System.out.println(s[2]);
 		}
 		else if(s[0].compareToIgnoreCase("RouterComm")==0)
 		{
