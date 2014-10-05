@@ -182,9 +182,9 @@ s(1,2)
             % set(tmp(1),'ButtonDownFcn',{@PanelCallbackDown,cnt});
             %   set(gcf,'WindowButtonUpFcn',{@PanelCallbackUp,cnt});
         a=get(tmp(1),'Position')
-         height=35;
-          width=45;
-            set(tmp(1),'Position',[a(1)+(a(3)/2)-(height/2) a(2)+(a(4)/2)-(width/2) height width]);  
+         width=35;
+          height=45;
+            set(tmp(1),'Position',[a(1)+(a(3)/2)-(width/2) a(2)+(a(4)/2)-(height/2) width height]);  
    
            x=char(s(1,2));
             x=(x(1:end-1))
@@ -204,9 +204,9 @@ s(1,2)
                     set(tmp(3),'Visible','off');
                     set(tmp(4),'Visible','off');
                      a=get(tmp(1),'Position')
-                    height=35;
-                     width=45;
-                    set(tmp(1),'Position',[a(1)+(a(3)/2)-(height/2) a(2)+(a(4)/2)-(width/2) height width]);  
+                    width=35;
+                     height=45;
+                    set(tmp(1),'Position',[a(1)+(a(3)/2)-(width/2) a(2)+(a(4)/2)-(height/2) width height]);  
                     x=char(s(j,2));
                     x=(x(1:end-1))
                     s=handles.xbeeObject.sendData({'AssignIdentifier',char(x),num2str(zone),num2str(subzone),num2str(sensor)})
@@ -257,7 +257,7 @@ guidata(hObject, handles);
 
 function pushbutton4_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to pushbutton4 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
+% eventdata  reserved - to be defined in a future version of MATLAB  
 % handles    empty - handles not created until after all CreateFcns called
 handles.Mon=hObject;
 guidata(hObject, handles);
@@ -306,63 +306,69 @@ for i=1:size(s,1)
 end
 %graphVar
 newFig=figure()
-set(newFig,'name','Monitoring..','numbertitle','off')
-barG=bar(graphY,0.4)
+set(newFig,'name','Monitoring..','numbertitle','off');
+barG=bar(graphY,0.4);
 set(gca,'xticklabel',graphX)
 %linkdata on
-
+ countout=zeros(1,size(handles.nodes,2));
 while(flag==true)
   
   
 
     s=handles.xbeeObject.getReply({num2str(size(handles.nodes,2))});
     
- 
+   
     for i=1:size(s,1)
-        x=[0 0 0 0 0 0 0];
+        x=[0 0 0 0 0 0 0 0];
         %tmpMax=[0 0 0 0 0];
         %tmpZeroFlag=[0 0 0 0 0]
     an=handles.HashMap(char(s(i,2)));
-    dataUpdate= find(strcmp(graphX,an)==1)
+    dataUpdate= find(strcmp(graphX,an)==1);
         for j=1:size(handles.nodes,2)
             % (char(strcat(handles.nodes(6,j),'_',handles.nodes(7,j),'_',handles.nodes(8,j))))==char(an)
             if(strcmp(strcat(num2str(handles.nodes(6,j)),'_',num2str(handles.nodes(7,j)),'_',num2str(handles.nodes(8,j))),an))
                 if(initFlag)
                       pbh1 = uicontrol(handles.nodes(1,j),'Style','text',...
                       'Units','normalized',...
-                      'Position',[.1 .2 .8 .75],'ForegroundColor',[1 1 1],'BackgroundColor',[1 0 0],'FontSize',15);
+                      'Position',[.1 .2 .8 .75],'BackgroundColor',[1 0 0],'FontSize',15);
                       monitorMap(strcat(num2str(handles.nodes(6,j)),'_',num2str(handles.nodes(7,j)),'_',num2str(handles.nodes(8,j))))=[pbh1 x];
+                      a=[pbh1 x];
+                      if grideyeFlag
+                          if strcmp(popupmenu2value,'Counting')
+                            nodePos=get(handles.nodes(1,j),'Position')
+                            width=140;
+                            height=115;
+                            set(handles.nodes(1,j),'Position',[nodePos(1)+(nodePos(3)/2)-(width/2) nodePos(2)+nodePos(4)/2-height/2 width height],'TitlePosition','centertop');
+                            set(a(1),'position',[.01 .55 .95 .35]);
+                            countout(j) = uicontrol(handles.nodes(1,j),'Style','text',...
+                            'Units','normalized',...
+                            'Position',[.01 .05 .95 .50],'BackgroundColor',[1 0 0],'FontSize',14,'String',sprintf('+ve   ||    -ve\n%s',get(handles.nodes(1,j),'title')));
+                          end
+                      end
+                      
                     %  disp('here')
                      
                 else
                     keys(monitorMap)
                     a=monitorMap(strcat(num2str(handles.nodes(6,j)),'_',num2str(handles.nodes(7,j)),'_',num2str(handles.nodes(8,j))));
+                end
                      if ~grideyeFlag
                         set(a(1),'String',char(s(i,1)));
                         
                      else
-                
+                     
+                     
                     b=str2num(char(s(i,1)));
                     if strcmp(popupmenu2value,'Counting')
+                       set(newFig,'visible','off');
+                        %clf(newFig)
+                       %set(gca,'Xtick',[],'Ytick',[]);
+                       %countOut = uicontrol(newFig,'Style','text',...
+                      %'Units','normalized',...
+                      %'Position',[.075 .075 .85 .85],'BackgroundColor',[0 1 1],'FontSize',75);
+                    
                         b
-                        [val,pos]=max(b);
-                        maxPos=find(b==val)
-                        if size(maxPos,2)>1
-                            pos=median(maxPos)
-                        end
-                        if ~all(~b)
-                            
-                            a(2+a(8))=pos;
-                        else
-                           
-                            a(2+a(8))=0;
-                        end
-                        
-                        a(8)=a(8)+1;
-                        a
-                        if a(8)==5
-                            a(8)=0;
-                            arrTemp=a(2:6);
+                            arrTemp=b;
                             zeroPos=find(arrTemp==0,1);
                             if isempty(zeroPos)
                                 zeroPos=6;
@@ -371,14 +377,18 @@ while(flag==true)
                                 disp('No result');
                             else        
                             if arrTemp(1)<arrTemp(zeroPos-1)
+                                 disp('Increment');
                                 a(7)=a(7)+1;
                             else
-                                a(7)=a(7)-1;
+                                 disp('Decrement');
+                                a(9)=a(9)+1;
                             end
                                fprintf(fileID1,'%s,%s,%d\n',an,datestr(clock),a(7)); 
                             end
-                        end
-                    set(a(1),'String',(a(7)));
+                        
+                    set(a(1),'String',sprintf('%d    ||    %d',a(7),a(9)));
+                    
+                    %set(countOut,'String',(a(7)));
                     else
                     
                     b=reshape(b,8,[]);
@@ -395,21 +405,37 @@ while(flag==true)
                      out=bwconncomp(d)
                      occOfOne=size(find((cellfun(@numel,out.PixelIdxList))==1));
                      Occu=out.NumObjects-occOfOne(2);
-                     z=a(2:8);
+                     z=a(2:6);
                       z=[z Occu];
-                      a(2:8)=z(2:8);
-                      z=a(2:8)
+                      a(2:6)=z(2:6);
+                      z=a(2:6);
                      
                        if strcmp(popupmenu2value,'Security')
-                           set(a(1),'String',out.NumObjects);
-                            if out.NumObjects>0
+                           set(a(1),'String',Occu);
+                           
+                             %set(barG,'visible','off');
+                              
+                            if Occu>0
+                                set(newFig,'name',strcat('Security Breach at ',an));
+                                bg = imread('security.png'); imagesc(bg);
+                                 set(gca,'Xtick',[],'Ytick',[]);
                                 Y=audioread('alarm.wav');
+                                set(a(1),'String','1', 'BackgroundColor',[1 0 0]);
+                                set(handles.nodes(1,j),'BackgroundColor',[1 0 0]);
                                 sound(Y,44100);
                                 pause(1);
                             else
+                                set(handles.nodes(1,j),'BackgroundColor',[0 1 0]);
+                                set(a(1),'String','0', 'BackgroundColor',[0 1 0]);
+                                set(newFig,'name','Monitoring..');
+                                set(gca,'Xtick',[],'Ytick',[]);
+                                 clf(newFig);
                                 %do nothing
                             end
                        else if strcmp(popupmenu2value,'Occupancy')
+                            z 
+                            set(gca,'ylim',[0 5])
+                            
                              lastVal=get(a(1),'String')  
                              set(a(1),'String',num2str(round(mean(z))));
                              graphY(dataUpdate)=round(mean(z));
@@ -421,36 +447,65 @@ while(flag==true)
                                 fprintf(fileID1,'%s,%s,,%d\n',an,datestr(clock),round(mean(z))); 
                                 
                              end
+                   
+                           else 
+                                set(newFig,'visible','off');
+                           if Occu>0
+                               set(handles.nodes(1,j),'BackgroundColor',[0 1 0]);       
+                                set(a(1),'String','1', 'BackgroundColor',[0 1 0]);
+                           else
+                               set(handles.nodes(1,j),'BackgroundColor',[1 0 0]);
+                                set(a(1),'String','0', 'BackgroundColor',[1 0 0]);
                            end
+                         
                            
-                               
+                       end
+                       
                         %    grideyeFlag=false;
-                        end 
+                       end 
+                   
+                        
                      disp(out.NumObjects);
                     end
                      monitorMap(strcat(num2str(handles.nodes(6,j)),'_',num2str(handles.nodes(7,j)),'_',num2str(handles.nodes(8,j))))=a;
 
                     
                     end
-                end
+                
                 
               
           
           uistack(pbh1,'up',1);
             end
-        
+        countout
         end
+        countout
     end
+    countout
      initFlag=false;
     handles.MonitorTable=monitorMap;
     guidata(hObject, handles);
     userData = get(handles.stopMon, 'UserData');
+    
+    imshow('floorMap.png','Parent',handles.axes1);
    if userData.stop
        userData.stop = false;
        set(handles.stopMon, 'UserData',userData);
        flag=false;
        handles.xbeeObject.sendData({'NodeDiscover'});
+       for j=1:size(handles.nodes,2)
+                set(handles.nodes(1,j),'BackgroundColor',[1 0 0]); 
+                nodePos=get(handles.nodes(1,j),'Position');
+                width=35;
+                height=45;
+                set(handles.nodes(1,j),'Position',[nodePos(1)+nodePos(3)/2-width/2 nodePos(2)+nodePos(4)/2-height/2 width height]);
+                if strcmp(popupmenu2value,'Counting')
+                delete(countout(j));
+                end
+       end
+       
        disp('Stop')
+      
        set(handles.stopMon,'Visible','off');
        set(handles.popupmenu1,'Enable','on')
         set(handles.popupmenu2,'Enable','on')

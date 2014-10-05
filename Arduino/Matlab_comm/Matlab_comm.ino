@@ -69,7 +69,17 @@ Wire.beginTransmission(addr);
   float celsiusTherm = temperatureTherm * 0.0625;
   return celsiusTherm;
 }
-
+int getIndexOfMaximumValue(int* array, int size){
+  int maxIndex = 0;
+  int max = array[maxIndex];
+  for (int i=1; i<size; i++){
+    if (max<array[i]){
+      max = array[i];
+      maxIndex = i;
+    }
+  }
+  return maxIndex;
+}
 void Monitor_event(int x)
 {
     
@@ -82,11 +92,12 @@ void Monitor_event(int x)
        appID=rx.getData(2);
        sizeOut=0;  
        if(appID==4)
-            sizeOut=8;
+            sizeOut=5;
         else
             sizeOut=64;
           out=new uint8_t[sizeOut];
    }int fiveFramecnt=10;
+   int temp[8];
    boolean sendFlag=false;
    byte pixelTempL=0x80;
    byte pixelTempH=0x81;
@@ -130,7 +141,7 @@ void Monitor_event(int x)
          //--------------------------------------------------------------------------------------
           if(appID==4)
           {
-            if(celsius-celsiusTherm>1.4)
+            if(celsius-celsiusTherm>1.2)
             {
               cnt++;
               if(fiveFramecnt>4 && cnt>1)
@@ -143,18 +154,18 @@ void Monitor_event(int x)
               
             
              if((pixel+1)%8 == 0){
-                 out[pixel/8]=sum;
+                 temp[pixel/8]=sum;
                  sum=0;
               }
           }
           else
           {
             
-            if(cnt>3 || cnt==0)
-            fiveFramecnt=0;
+            if(cnt>1 || cnt==0)
+            fiveFramecnt=5;
            else
            fiveFramecnt=10;
-            if(celsius-celsiusTherm>1.4)
+            if(celsius-celsiusTherm>1.2)
             {
               cnt++;
               out[pixel]=1;
@@ -168,12 +179,24 @@ void Monitor_event(int x)
             pixelTempH = pixelTempH + 2;
       }
       
-      if(fiveFramecnt<=5)
+      if(appID==4 && fiveFramecnt<5)
        {
+              out[fiveFramecnt]=getIndexOfMaximumValue(temp,8)+1;
+              if(cnt<2)
+                  for(int i=fiveFramecnt;i<5;i++)
+                  {
+                    out[i]=0;
+                    fiveFramecnt=4; 
+                  }
               fiveFramecnt++;
-              sendFlag=true;
-              zbTx = ZBTxRequest(remoteAddress, out, sizeOut);
+       }   
+       if(fiveFramecnt==5)
+       {
+               sendFlag=true;
+               fiveFramecnt=10;
+               zbTx = ZBTxRequest(remoteAddress, out, sizeOut);
        }
+       
        else
               sendFlag=false;
       }
@@ -209,9 +232,9 @@ void Monitor_event(int x)
         {
           flag=false;
           text[0]=1;
-          zbTx = ZBTxRequest(remoteAddress, text, sizeof(text));
+          //zbTx = ZBTxRequest(remoteAddress, text, sizeof(text));
            digitalWrite(13,0);
-           xbee.send(zbTx);
+           //xbee.send(zbTx);
          delay(50);
         }
       }     
