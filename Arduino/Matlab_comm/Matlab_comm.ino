@@ -141,7 +141,7 @@ void Monitor_event(int x)
          //--------------------------------------------------------------------------------------
           if(appID==4)
           {
-            if(celsius-celsiusTherm>1.2)
+            if(celsius-celsiusTherm>1.4)
             {
               cnt++;
               if(fiveFramecnt>4 && cnt>1)
@@ -165,7 +165,7 @@ void Monitor_event(int x)
             fiveFramecnt=5;
            else
            fiveFramecnt=10;
-            if(celsius-celsiusTherm>1.2)
+            if(celsius-celsiusTherm>1.4)
             {
               cnt++;
               out[pixel]=1;

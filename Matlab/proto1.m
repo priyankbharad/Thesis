@@ -335,7 +335,7 @@ while(flag==true)
                       a=[pbh1 x];
                       if grideyeFlag
                           if strcmp(popupmenu2value,'Counting')
-                            nodePos=get(handles.nodes(1,j),'Position')
+                            nodePos=get(handles.nodes(1,j),'Position');
                             width=140;
                             height=115;
                             set(handles.nodes(1,j),'Position',[nodePos(1)+(nodePos(3)/2)-(width/2) nodePos(2)+nodePos(4)/2-height/2 width height],'TitlePosition','centertop');
@@ -402,9 +402,9 @@ while(flag==true)
                     %z=a
                      %imshow(d,'InitialMagnification','fit');
                      %drawnow
-                     out=bwconncomp(d)
+                     out=bwconncomp(d);
                      occOfOne=size(find((cellfun(@numel,out.PixelIdxList))==1));
-                     Occu=out.NumObjects-occOfOne(2);
+                     Occu=out.NumObjects-occOfOne(2)
                      z=a(2:6);
                       z=[z Occu];
                       a(2:6)=z(2:6);
@@ -477,12 +477,15 @@ while(flag==true)
           
           uistack(pbh1,'up',1);
             end
-        countout
+      
         end
-        countout
+      
     end
-    countout
+ 
+    if(monitorMap.Count==size(handles.nodes,2))
      initFlag=false;
+    end
+    
     handles.MonitorTable=monitorMap;
     guidata(hObject, handles);
     userData = get(handles.stopMon, 'UserData');
